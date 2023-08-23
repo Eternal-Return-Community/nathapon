@@ -67,9 +67,4 @@ func messageContent(conn net.Conn, channel models.Irc) {
 	if strings.ToLower(channel.Message) == "!part" {
 		database.Part(conn, channel)
 	}
-
-	if strings.ToLower(channel.Message) == "!test" {
-		fmt.Fprintf(conn, "PRIVMSG #%s :Bot: %s\r\n", channel.ChannelName, "test")
-	}
-
 }
