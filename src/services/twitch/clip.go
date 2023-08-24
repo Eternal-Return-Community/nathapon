@@ -12,16 +12,13 @@ import (
 	"time"
 )
 
-const (
-	endpoint = "https://api.twitch.tv/helix"
-)
+const endpoint = "https://api.twitch.tv/helix"
 
 func Clip(conn net.Conn, channel models.Irc) {
 
 	client := &http.Client{}
 	clipID, err := createClip(client, conn, channel)
 	if err != nil {
-		fmt.Println(err)
 		return
 	}
 

@@ -10,6 +10,15 @@ import (
 func embed(info models.ClipInfo, clipAuthor string) *bytes.Buffer {
 
 	channel := info.Data[0]
+
+	var duration int
+	if d, ok := channel.Duration.(float64); ok {
+		duration = int(d)
+	} else {
+		duration = int(d)
+	}
+
+	fmt.Println(duration)
 	payload, _ := json.Marshal(map[string]string{
 		"username":   "Nathapon",
 		"avatar_url": "https://i.imgur.com/JEUHO92.png",
@@ -20,7 +29,7 @@ func embed(info models.ClipInfo, clipAuthor string) *bytes.Buffer {
 				"**%s**",
 			channel.BroadcasterName, channel.BroadcasterName,
 			clipAuthor, channel.Title,
-			channel.Duration, channel.URL),
+			duration, channel.URL),
 	})
 
 	return bytes.NewBuffer(payload)
