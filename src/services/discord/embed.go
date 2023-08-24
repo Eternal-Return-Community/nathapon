@@ -18,7 +18,6 @@ func embed(info models.ClipInfo, clipAuthor string) *bytes.Buffer {
 		duration = int(d)
 	}
 
-	fmt.Println(duration)
 	payload, _ := json.Marshal(map[string]string{
 		"username":   "Nathapon",
 		"avatar_url": "https://i.imgur.com/JEUHO92.png",
