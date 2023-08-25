@@ -12,8 +12,10 @@ import (
 	"time"
 )
 
-var channel models.Irc
-var send net.Conn
+var (
+	channel models.Irc
+	send net.Conn
+)
 
 func main() {
 	// Env
