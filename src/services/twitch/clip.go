@@ -5,10 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"nathapon/src/models"
+	"nathapon/src/services"
 	"nathapon/src/services/discord"
-	"nathapon/src/utils"
 	"net"
-	"net/http"
 	"time"
 )
 
@@ -19,20 +18,19 @@ var send net.Conn
 func Clip(conn net.Conn, channel models.Irc) {
 
 	send = conn
-	client := &http.Client{}
-	clipID, err := createClip(client, channel)
+	clipID, err := createClip(channel)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	info, err := getClip(client, clipID, channel)
+	info, err := getClip(clipID, channel)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	err = discord.Webhook(client, info, channel.MessageAuthor)
+	err = discord.Webhook(info, channel.MessageAuthor)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -40,26 +38,17 @@ func Clip(conn net.Conn, channel models.Irc) {
 
 }
 
-func createClip(client *http.Client, channel models.Irc) (string, error) {
+func createClip(channel models.Irc) (string, error) {
 
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s%s", endpoint+"/clips?broadcaster_id=", channel.ChannelRoom), nil)
+	resp, err := services.Instance("POST", fmt.Sprintf("%s%s", endpoint+"/clips?broadcaster_id=", channel.ChannelRoom), nil)
 	if err != nil {
 		fmt.Println(err)
 		return "", nil
 	}
-
-	req.Header.Add("Authorization", utils.Env.Token)
-	req.Header.Add("Client-ID", utils.Env.Client)
-
-	resp, err := client.Do(req)
-	if err != nil {
-		fmt.Println(err)
-		return "", nil
-	}
-	defer resp.Body.Close()
+	defer resp.Close()
 
 	var response models.Clip
-	err = json.NewDecoder(resp.Body).Decode(&response)
+	err = json.NewDecoder(resp).Decode(&response)
 	if err != nil {
 		fmt.Println(err)
 		return "", nil
@@ -78,25 +67,17 @@ func createClip(client *http.Client, channel models.Irc) (string, error) {
 
 }
 
-func getClip(client *http.Client, clipID string, channel models.Irc) (models.ClipInfo, error) {
+func getClip(clipID string, channel models.Irc) (models.ClipInfo, error) {
 
-	time.Sleep(1 * time.Second)
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s", endpoint+"/clips?id=", clipID), nil)
+	time.Sleep(20 * time.Second)
+	resp, err := services.Instance("GET", fmt.Sprintf("%s%s", endpoint+"/clips?id=", clipID), nil)
 	if err != nil {
 		return models.ClipInfo{}, err
 	}
-
-	req.Header.Add("Authorization", utils.Env.Token)
-	req.Header.Add("Client-ID", utils.Env.Client)
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return models.ClipInfo{}, err
-	}
-	defer resp.Body.Close()
+	defer resp.Close()
 
 	var response models.ClipInfo
-	err = json.NewDecoder(resp.Body).Decode(&response)
+	err = json.NewDecoder(resp).Decode(&response)
 	if err != nil {
 		fmt.Println(err)
 		return models.ClipInfo{}, nil

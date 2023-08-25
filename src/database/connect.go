@@ -25,6 +25,6 @@ func Connect() (client *mongo.Client, ctx context.Context) {
 
 	collection = client.Database("channels").Collection("info")
 
-	fmt.Println("Database online.")
+	fmt.Printf("%s Database online.", utils.DateLogger())
 	return
 }
